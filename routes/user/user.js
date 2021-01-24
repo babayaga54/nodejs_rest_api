@@ -7,6 +7,13 @@ const userController = require('../../controller/user/user');
 const router = express.Router();
 
 router.post('/test', userController.testMetodAuth);
+router.post('/post' , userController.sendPost)
+router.post('/like' , userController.likePost)
+router.post('/comment' , userController.commentPost)
+router.post('/group' , userController.createGroup)
+router.get('/postdetail' , userController.getPostDetail)
+router.get('/post' , userController.getAllPost)
+
 // router.post('./addMarque', isAuth, )
 
 

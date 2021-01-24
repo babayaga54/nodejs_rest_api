@@ -7,6 +7,10 @@ const authController = require('../../controller/auth/auth');
 const router = express.Router();
 
 router.post('/test', authController.testMetodAuth);
+router.post('/signup', authController.signUp);
+router.post('/signin', authController.signIn);
+
+
 // router.post('./addMarque', isAuth, )
 
 

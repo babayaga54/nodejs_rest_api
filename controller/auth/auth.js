@@ -9,8 +9,8 @@ exports.testMetodAuth = (req, res, next) => {
 const jwt = require('jsonwebtoken');
 
 // IMPORT MODELS
-const User = require('../../models/user');
-const User_roles = require('../../models/user_role');
+const User = require('../../model/user');
+const User_roles = require('../../model/user_roles');
 
 
 exports.testMetodAuth = (req, res, next) => {
@@ -23,12 +23,12 @@ exports.testMetodAuth = (req, res, next) => {
 
 exports.signUp = (req, res, next) => {
     
-    const {username , email,surname,telephone,password,photo,role} = req.body
-    
+    const {name , email,surname,telephone,password,photo,role} = req.body
+    console.log("deneme")
     let userData = null
     return User.create({
         email,
-        name: username,
+        name: name,
         password,
         telephone,
         surname,
@@ -36,32 +36,15 @@ exports.signUp = (req, res, next) => {
     })
    .then((user) => {
             
-            console.log(userData.id ,user , "user")
+            console.log("user")
             return User_roles.create({
                 roleName: role,
-                accountId: user.id,
+                userId: user.id,
                 deleted: false
             })
         })
        
-        .then((result) => {
-            console.log(result.roleName , "result")
-            if(result.roleName === "mosqueAdmin" ){
-                console.log("user mos")
-                return Mosque_Admin.create({
-                    deleted : false,
-                    userId : userData.id
-                })
-            }else {
-                console.log("mos")
-                res.status(200).json({
-                    responseStatus: 200,
-                    response : result ,
-                    responseMessage: "User  created!"
-                })
-            }
-            
-        })
+      
         .then((user)=>{
             console.log(user , "und")
             if(user != undefined){
@@ -93,82 +76,67 @@ exports.signIn = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
     let resultresponse = null;
+    console.log("dene")
 
-    return Account.findAll({
-        where: {
-            email: email,
-            password: password
+    return User.findAll({
+        where : {
+            email,
+            password,
         }
     })
-        .then((result) => {
-            console.log(result , "result 1")
-            resultresponse = result;
-
-            if (result === undefined) {
-                res.status(200).json({
-                    responseStatus: 401,
-                    responseMessage: "user Incorrect Password"
-                });
-            }
-
-            else if (result[0].email === email && result[0].password === password) {
-                console.log(result[0].id , "userid")
+    .then((user)=>{
+        console.log("dene2")
+        resultresponse = user[0]
+        if(user != undefined){
                 return User_roles.findAll({
-                    where: {
-                        accountId : result[0].id
+                    where : {
+                        userId : resultresponse.id
                     }
                 })
-            }
+        }
+        else {
+            res.status(200).json({
+                response : null,
+                responseMessage : "user not found",
+                responseStatus : 400
+            })
+        }
+    })
+    .then((role)=>{
+        if(role != undefined || role != null){
+            const token = jwt.sign({
+                name  : resultresponse.name,
+                surname : resultresponse.surname,
+                email : resultresponse.email,
+                telephone : resultresponse.telephone,
+                role : role[0].roleName
 
-            else {
+            },"socialnetwork")
+            res.status(200).json({
+                response : resultresponse,
+                token : token,
+                responseMessage  :"Succesfull login",
+                responseStatus : 200
+            })
+        }
+        else{
+            res.status(200).json({
+                response : null,
+                responseMessage  :"User not found",
+                responseStatus : 400
+            })
+        }
+    })
+    .catch((err) => {
                 res.status(200).json({
                     responseStatus: 401,
-
-                    responseMessage: "user Incorrect Password"
+    
+                    responseMessage: "user err Password"
                 });
-            }
+                console.log(err)
+            })
 
-        })
-       .then((userRoles) => {
-           console.log("userrole")
-            if (userRoles) {
-
-                return User.findAll({
-                        where : {
-                            id : resultresponse[0].userId
-                        }
-                })
-               
-            }
-
-        })
-        .then((result)=>{
-           
-            if(result){
-                const token = jwt.sign({
-                    email : resultresponse[0].email,
-                    role : resultresponse[0].accountType,
-                    name : result[0].name,
-                    surname : result[0].surname,
-                    telephone : result[0].telephone,
-                },"mosqueapi")
-                res.status(200).json({
-                    responseStatus : 200,
-                    response : result[0],
-                    token : token,
-                    responseMessage : "Succesful login"
-                })
-            }
-        })
-        .catch((err) => {
-            res.status(200).json({
-                responseStatus: 401,
-
-                responseMessage: "user err Password"
-            });
-            console.log(err)
-        })
-    //const username = req.body.
+   
 }
 
 

@@ -10,13 +10,32 @@ const User = sequlize.define('user',{
         allowNull:false,
         primaryKey:true
     },
-    email : Sequelize.STRING,
-    name:Sequelize.STRING,
-    surname: Sequelize.STRING,
-    telephone: Sequelize.STRING,
+    email :{
+        type:Sequelize.STRING,
+        allowNull:false,
+        primaryKey:true
+    },
+    name:{
+        type:Sequelize.STRING,
+        allowNull:false
+       
+    },
+    surname: {
+        type:Sequelize.STRING,
+        allowNull:false
+       
+    },
+    telephone: {
+        type:Sequelize.STRING,
+        allowNull:false
+       
+    },
     photo: Sequelize.STRING,
-    type: Sequelize.STRING,
-    password: Sequelize.STRING,
+    password:{
+        type:Sequelize.STRING,
+        allowNull:false
+       
+    },
     deleted: Sequelize.BOOLEAN
 })
 

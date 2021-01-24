@@ -99,6 +99,9 @@ User.hasOne(User_Roles)
 User.hasMany(Conversation)
 Conversation.belongsTo(User)
 
+Group.hasMany(Post)
+Post.belongsTo(Group)
+
 Conversation.hasMany(Chat)
 Chat.belongsTo(Conversation)
 
@@ -122,7 +125,7 @@ Post.hasMany(Like)
 Like.belongsTo(Post)
 
 
-
+ // 1 group Admin 2 user
 let userData = null;
 sequelize
     .sync()
@@ -134,9 +137,12 @@ sequelize
         if (!user) {
             return User.create({
                 email: "socialnetwork@yatoo.com",
+                name : "Fatih",
                 password: "Admin",
                 photo: "null",
                 type: 'Admin',
+                telephone : "123123",
+                surname : "wefsdf",
                 deleted: false
             })
         }
