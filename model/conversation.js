@@ -14,6 +14,7 @@ const conversation = sequelize.define('conversation',{
         firstUser : Sequelize.STRING,
         lastMessage : Sequelize.STRING,
         notification : Sequelize.STRING,
+        updatedAt : Sequelize.DATE,
         deleted : Sequelize.BOOLEAN
 })
 module.exports = conversation

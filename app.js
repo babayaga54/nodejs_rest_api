@@ -92,6 +92,24 @@ app.use((error, req, res, next) => {
     res.status(status).json({ message: message, data: data });
 });
 
+io.on('connection',socket=>{
+    require('./controller/chat/chatController')(socket)
+    console.log(socket.id , "socket=====")
+    let user={}
+    socket.on('user_connected',user=>{
+        console.log(user)
+        socket.id=user.id
+        socket.emit("connected",socket.id)
+        
+    })
+    
+    socket.on('send_message',(message)=>{
+       // console.log(message, '======',message.id)
+        io.emit('new_message',message)
+        
+    })
+
+})
 
 // RELASHIONSHIP DB
 
@@ -125,6 +143,14 @@ Comment.belongsTo(Post)
 Post.hasMany(Like)
 Like.belongsTo(Post)
 
+
+/* 
+TODO: db guncelleme için bunu yap
+
+sequelize
+    .sync({force : true})
+
+*/
 
  // 1 group Admin 2 user
 let userData = null;
