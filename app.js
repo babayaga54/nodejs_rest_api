@@ -6,7 +6,9 @@ const compression = require('compression');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 var fs = require('fs');
-
+const app = express();
+const http = require('http').createServer(app);
+const io = require('socket.io')(http)
 
 // IMPORT DATABASE
 const sequelize = require('./database/database');
@@ -25,8 +27,6 @@ const Conversation = require('./model/conversation')
 const authRoutes = require('./routes/auth/auth')
 const adminRoutes = require('./routes/admin/admin')
 const userRoutes = require('./routes/user/user')
-
-const app = express();
 
 
 
@@ -61,6 +61,7 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.io = io;
     next();
 })
 
@@ -170,7 +171,7 @@ sequelize
         //   fs.mkdirSync(dir);
         // }
         console.log(UserRole);
-        app.listen(process.env.PORT || 3000);
+        http.listen(process.env.PORT || 3000);
     })
     .catch(err => {
         console.log(err);

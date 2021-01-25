@@ -5,7 +5,7 @@ const Comment = require('../../model/comment')
 const Like = require('../../model/like')
 const Group = require('../../model/group')
 const User_Roles = require('../../model/user_roles')
-
+const Chat = require('../../model/chat')
 
 
 
@@ -15,7 +15,7 @@ exports.testMetodAuth = (req, res, next) => {
     });
 }
 
-exports.sendPost = (req, res, next) => {
+exports.sendPost = (req, res, next) => {2
     const { post, userId,groupId } = req.body
 
     return Post.create({
@@ -117,7 +117,8 @@ exports.getPostDetail = (req, res, next) => {
                 where: {
                     postId,
                     deleted: false
-                }
+                },
+                required : false
             },
             {
                 model: Like,
@@ -125,13 +126,13 @@ exports.getPostDetail = (req, res, next) => {
                     postId,
                     deleted: false
                 },
-                
+                required : false
             }
         ]
     })
         .then(result => {
             console.log("merhab" ,result)
-            if (result != undefined) {
+            if (result != undefined || result == null)  {
                 console.log("resultv========")
                 res.status(200).json({
                     response: result[0],
@@ -209,7 +210,7 @@ exports.createGroup = (req, res, next) => {
 
         })
         .then((result) => {
-            console.log("created resul")
+            console.log("created result")
             if (result != undefined) {
                 res.status(200).json({
                     response: groupData,
@@ -226,4 +227,8 @@ exports.createGroup = (req, res, next) => {
             });
 
         })
+}
+
+exports.chat=(req,res,next)=>{
+    const {data} = req.body
 }
