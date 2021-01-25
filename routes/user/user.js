@@ -13,7 +13,8 @@ router.post('/comment' , userController.commentPost)
 router.post('/group' , userController.createGroup)
 router.get('/postdetail' , userController.getPostDetail)
 router.get('/post' , userController.getAllPost)
-
+router.get('/message' , userController.getMessage)
+router.get('/usermessage' , userController.getUserMessage)
 // router.post('./addMarque', isAuth, )
 
 

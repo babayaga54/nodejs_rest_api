@@ -9,7 +9,17 @@ const conversation = sequelize.define('conversation',{
             allowNull:false,
             primaryKey:true
         },
-        users : Sequelize.JSON,
+        users: {
+            type: Sequelize.STRING,
+            allowNull: false,
+            get() {
+                return this.getDataValue('users')
+            },
+            set(val) {
+               this.setDataValue('users',val.join(' '));
+            },
+        }
+,        
         roleName : Sequelize.STRING,
         firstUser : Sequelize.STRING,
         lastMessage : Sequelize.STRING,

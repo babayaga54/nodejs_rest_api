@@ -9,7 +9,7 @@ var fs = require('fs');
 const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http)
-
+io.setMaxListeners(0);
 // IMPORT DATABASE
 const sequelize = require('./database/database');
 
@@ -75,6 +75,86 @@ app.use((req, res, next) => {
 // });
 // })
 
+io.on('connection', socket => {
+    console.log(socket.id, "socket=====")
+    let user = {}
+    socket.on('user_connected', user => {
+        console.log(user)
+        socket.id = user.id
+        socket.emit("connected", socket.id)
+
+    })
+
+    socket.on('send_message', (message) => {
+        // console.log(message, '======',message.id)
+        io.emit('new_message', message)
+
+        // users : Sequelize.JSON,
+        // roleName : Sequelize.STRING,
+        // firstUser : Sequelize.STRING,
+        // lastMessage : Sequelize.STRING,
+        // notification : Sequelize.STRING,
+        // deleted : Sequelize.BOOLEAN 
+        return Conversation.findAll({
+            where: {
+                id: message.conversationId != undefined ? message.conversationId : 0
+            },
+            required: false
+
+        })
+            .then((result) => {
+                console.log("result", result.length)
+                if (result.length === 0) {
+                    return Conversation.create({
+                        users:[2,3,4],
+                        roleName: "users",
+                        firstUser: "2",
+                        lastMessage: message.message,
+                        notification: "merhaba",
+                        deleted: false
+                    })
+                } else {
+                    return Chat.create({
+                        senderId: 3,
+                        conversationId: 2,
+                        message: message.message,
+                        deleted: false,
+                        conversationId: message.conversationId
+                    })
+                        .then((result => {
+                            console.log("err", result)
+                            Conversation.update({
+                                lastMessage: message.message
+                            },
+                                {
+                                    where: {
+                                        id: message.conversationId,
+                                    }
+                                }
+                            )
+                        }))
+                        .catch((err) => {
+                            console.log("rews")
+
+                        })
+                }
+
+            })
+            .then(response => {
+                console.log(response, "respkne")
+                if (response != undefined) {
+                    console.log("merhaba")
+                }
+            })
+            .catch((err) => {
+                console.log("333", err)
+
+            })
+
+    })
+
+})
+
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
@@ -126,7 +206,7 @@ Post.hasMany(Like)
 Like.belongsTo(Post)
 
 
- // 1 group Admin 2 user
+// 1 group Admin 2 user
 let userData = null;
 sequelize
     .sync()
@@ -138,12 +218,12 @@ sequelize
         if (!user) {
             return User.create({
                 email: "socialnetwork@yatoo.com",
-                name : "Fatih",
+                name: "Fatih",
                 password: "Admin",
                 photo: "null",
                 type: 'Admin',
-                telephone : "123123",
-                surname : "wefsdf",
+                telephone: "123123",
+                surname: "wefsdf",
                 deleted: false
             })
         }
@@ -172,6 +252,7 @@ sequelize
         // }
         console.log(UserRole);
         http.listen(process.env.PORT || 3000);
+
     })
     .catch(err => {
         console.log(err);
