@@ -9,6 +9,9 @@ const chat = sequelize.define('chat',{
             allowNull:false,
             primaryKey:true
         },
+        
+        senderId : Sequelize.INTEGER,
+        conversationId : Sequelize.INTEGER,
         message : Sequelize.STRING,
         deleted : Sequelize.BOOLEAN
 })

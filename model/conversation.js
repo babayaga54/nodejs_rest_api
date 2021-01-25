@@ -9,7 +9,11 @@ const conversation = sequelize.define('conversation',{
             allowNull:false,
             primaryKey:true
         },
+        users : Sequelize.JSON,
         roleName : Sequelize.STRING,
+        firstUser : Sequelize.STRING,
+        lastMessage : Sequelize.STRING,
+        notification : Sequelize.STRING,
         deleted : Sequelize.BOOLEAN
 })
 module.exports = conversation
