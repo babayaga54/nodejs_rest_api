@@ -1,12 +1,16 @@
 
+const { Op } = require('sequelize')
+
+
 const Post = require('../../model/post')
 const User = require('../../model/user')
 const Comment = require('../../model/comment')
 const Like = require('../../model/like')
 const Group = require('../../model/group')
 const User_Roles = require('../../model/user_roles')
-
+const Conversation = require('../../model/conversation')
 const Chat = require('../../model/chat')
+
 
 
 
@@ -18,7 +22,7 @@ exports.testMetodAuth = (req, res, next) => {
     });
 }
 
-exports.sendPost = (req, res, next) => {2
+exports.sendPost = (req, res, next) => {
     const { post, userId,groupId } = req.body
 
     return Post.create({
@@ -215,11 +219,13 @@ exports.createGroup = (req, res, next) => {
         .then((result) => {
             console.log("created result")
             if (result != undefined) {
+                io.emit("chat",result)
                 res.status(200).json({
                     response: groupData,
                     responseMessage: "Created group",
                     responseStatus: 200
                 })
+               
             }
         })
         .catch((err) => {
@@ -232,6 +238,82 @@ exports.createGroup = (req, res, next) => {
         })
 }
 
-exports.chat=(req,res,next)=>{
-    const {data} = req.body
+exports.getMessage=(req,res,next)=>{
+    const { conversationId } = req.body
+
+    return Conversation.findAll({
+        where : {
+            id : conversationId
+        }
+    })
+    .then((result)=>{
+        
+        if(result.length >0 || result != undefined){
+            console.log(result[0].users.split(' '))
+            res.status(200).json({
+                response :{
+                    users : result[0].users.split(' '),
+                    id: conversationId,
+                    roleName:result[0].roleName,
+                    firstUser: result[0].firstUser,
+                    lastMessage: result[0].lastMessage,
+                    notification:result[0].roleName,
+                    deleted: result[0].deleted,
+                    createdAt: result[0].createdAt,
+                    updatedAt:result[0].updatedAt,
+                    userId:result[0].userId
+
+                },
+                responseMessage : "All message",
+                responseStatus : 200
+            })
+        }else {
+            res.status(200).json({
+                responseStatus: 401,
+                response: err,
+                responseMessage: "error"
+            });
+        }
+    })
+    .catch((err) => {
+        res.status(200).json({
+            responseStatus: 401,
+            response: err,
+            responseMessage: "error"
+        });
+
+    })
+
+
+}
+
+exports.getUserMessage=(req,res,next)=>{
+    const {userId} = req.body
+
+    return Conversation.findAll({
+        where : {
+            users : {
+                [Op.substring] : userId 
+            }
+        }
+    })
+    .then((result)=>{
+        console.log(result)
+        if(result.length > 0 || result != undefined || result != null){
+            res.status(200).json({
+                response : result,
+                responseMessage  :"asdasd",
+                responseStatus : 200
+            })
+        }
+    })
+    .catch((err) => {
+        res.status(200).json({
+            responseStatus: 401,
+            response: err,
+            responseMessage: "error"
+        });
+
+    })
+
 }
